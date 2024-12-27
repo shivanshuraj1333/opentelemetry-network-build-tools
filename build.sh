@@ -29,7 +29,10 @@ fi
 
 set -x
 
-nproc="$(./nproc.sh)"
+# Detect number of processors (macOS compatible)
+nproc="$(sysctl -n hw.ncpu || ./nproc.sh)"
+
+# Update git submodules
 git submodule update --init --recursive --jobs "${nproc}"
 
 # If this is a debug build set some extra flags to rename the benv image
@@ -51,6 +54,10 @@ else
   CMAKE_SOURCE_DIR=..
 fi
 
+# Enable macOS Docker default platform for compatibility with Linux images
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
+
+# Run cmake with options
 cmake $EXTRA_CMAKE_OPTIONS "$@" $CMAKE_SOURCE_DIR
 
 if [[ "$1" == "--cmake-only" ]]; then
@@ -60,8 +67,10 @@ if [[ "$1" == "--cmake-only" ]]; then
   exit 0
 fi
 
+# Build the project
 make
 
+# Tag the Docker image
 if [[ -n "${BENV_BASE_IMAGE_DISTRO}" ]] && [[ -n "${BENV_BASE_IMAGE_VERSION}" ]]; then
   echo docker tag ${DOCKER_TAG_PREFIX}build-env:latest "${DOCKER_TAG_PREFIX}build-env:${BENV_BASE_IMAGE_DISTRO}-${BENV_BASE_IMAGE_VERSION}"
   docker tag ${DOCKER_TAG_PREFIX}build-env:latest "${DOCKER_TAG_PREFIX}build-env:${BENV_BASE_IMAGE_DISTRO}-${BENV_BASE_IMAGE_VERSION}"

@@ -31,6 +31,7 @@
 [submodule "grpc_cpp/grpc"]
 	path = grpc_cpp/grpc
 	url = https://github.com/grpc/grpc.git
+	branch = v1.45.x
 [submodule "abseil_cpp/abseil-cpp"]
 	path = abseil_cpp/abseil-cpp
 	url = https://github.com/abseil/abseil-cpp.git
